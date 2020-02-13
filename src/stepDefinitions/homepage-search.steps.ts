@@ -1,29 +1,25 @@
 import { assert } from 'chai';
-import { binding, given, when, then } from 'cucumber-tsflow';
+import { Given, When, Then } from 'cucumber';
 import homepage from '../pages/Homepage';
 
-@binding()
-export class HomepageSearchSteps {
-    @given(/^I am on the search page$/)
-    public async givenOnHomepage() {
-        homepage.open();
-        const title = browser.getTitle();
 
+Given(/^I am on the "(.*)" page$/, function(siteUrl:string) {
+    homepage.open(siteUrl);
+    if(siteUrl.includes('google')){
+        const title = browser.getTitle();
         assert.equal(title, 'Google');
     }
+});
 
-    @when(/^I enter "([^"]*)" into the search box$/)
-    public whenIEnterSearchText(arg1) {
-        homepage.enterText(arg1);
-    }
+When(/^I enter "([^"]*)" into the search box$/, function(arg1: string) {
+    homepage.enterText(arg1);
+});
 
-    @when(/^I click the search button$/)
-    public whenSearchClicked() {
-        homepage.search();
-    }
+When(/^I click the search button$/, function() {
+    homepage.search();
+});
 
-    @then(/^I should see a list of search results$/)
-    public resultsShouldShow() {
-        assert.isTrue(homepage.isSearched());
-    }
-}
+
+Then(/^I should see a list of search results$/, function() {
+    assert.isTrue(homepage.isSearched());
+});

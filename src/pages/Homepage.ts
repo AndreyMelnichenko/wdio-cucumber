@@ -14,8 +14,8 @@ class Homepage extends Page {
    * define or overwrite page methods
    */
 
-  open () {
-      super.open('https://google.com');       //provide your additional URL if any. this will append to the baseUrl to form complete URL
+  open (url:string) {
+      super.open(url);       //provide your additional URL if any. this will append to the baseUrl to form complete URL
       browser.pause(1000);
   }
 

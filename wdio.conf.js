@@ -1,7 +1,7 @@
 const { addArgument } = require('@wdio/allure-reporter').default;
 const debug = !!process.env.DEBUG;
 const execArgv = debug ? ['--inspect'] : [];
-const stepTimout = debug ? 24 * 60 * 60 * 1000 : 6000;
+const stepTimout = 24 * 60 * 60 * 1000;
 const capabilities = debug
     ? [{ browserName: 'chrome', maxInstances: 1 }]
     : [
@@ -20,9 +20,10 @@ const capabilities = debug
                   // to run chrome headless the following flags are required
                   // (see https://developers.google.com/web/updates/2017/04/headless-chrome)
                   args: [
-                      '--headless',
+                      // '--headless',
                       '--disable-gpu',
                       '--disable-software-rasterizer',
+                      '--start-maximized',
                   ],
               },
           }
@@ -171,7 +172,7 @@ exports.config = {
         source: true, // <boolean> hide source uris
         profile: [], // <string[]> (name) specify the profile to use
         strict: false, // <boolean> fail if there are any undefined or pending steps
-        tagExpression: '@debug', // <string> (expression) only execute the features or scenarios with tags matching the expression
+        tagExpression: '@world and @test1', // <string> (expression) only execute the features or scenarios with tags matching the expression
         timeout: stepTimout, // <number> timeout for step definitions
         ignoreUndefinedDefinitions: false, // <boolean> Enable this config to treat undefined definitions as warnings
         requireModule: [

@@ -4,17 +4,18 @@
 
     npm install
     npm run test
-    npm run test:debug
     npm run allure-report
 
 ## Boilerplate project with CucumberJS configured with typescript
 
+-   WDIO 5
 -   Allure Reporter
 -   Typescript PageObjects
 -   Typescirpt Cucumber step decorators
 -   Chai For assertions
 -   Selenium Standalone with chrome and firefox capabilties in headless mode
 -   Vscode launch configuration to debug tests
+-   Overload default World object
 
 ## Debugging Tests
 
