@@ -20,6 +20,7 @@ const capabilities = debug
                   // to run chrome headless the following flags are required
                   // (see https://developers.google.com/web/updates/2017/04/headless-chrome)
                   args: [
+                      '--headless',
                       '--disable-gpu',
                       '--disable-software-rasterizer',
                   ],
@@ -177,11 +178,16 @@ exports.config = {
             // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
             'tsconfig-paths/register',
             () => {
-                require('ts-node').register({ files: true });
-            },
+                require('ts-node').register(
+                    {
+                        files: true
+                    })},
+            '@babel/register'
         ],
         require: ['./src/stepDefinitions/*.steps.ts',
-            './src/utils/hooks.ts'], // <string[]> (file/dir) require files before executing features
+            './src/utils/hooks.ts',
+            './babel.config.js'
+        ], // <string[]> (file/dir) require files before executing features
     },
 
     //
@@ -216,10 +222,10 @@ exports.config = {
      */
     // before: function (capabilities, specs) {
     // },
-    before: function(capabilities, specs) {
-        // require('ts-node/register');
-        require('ts-node').register({ files: true });
-    },
+    // before: function(capabilities, specs) {
+    //     // require('ts-node/register');
+    //     require('ts-node').register({ files: true });
+    // },
     /**
      * Runs before a WebdriverIO command gets executed.
      * @param {String} commandName hook command name

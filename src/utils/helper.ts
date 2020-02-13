@@ -3,8 +3,7 @@ import { World } from './World';
 
 abstract class Helper {
     public static addWorldValue(world: World, varName: string, data: any) {
-        const value:CustomWorld<any> = world as CustomWorld<any>;
-        value.keepValue(varName, data);
+        (world as CustomWorld<any>).keepValue(varName, data);
     };
 
     public static getWorldValue(

@@ -1,7 +1,6 @@
 import { assert } from 'chai';
 import { binding, given, when, then } from 'cucumber-tsflow';
 import homepage from '../pages/Homepage';
-import { Helper } from '../utils/helper';
 
 @binding()
 export class HomepageSearchSteps {

@@ -4,17 +4,17 @@ Feature: Performing a Google Search
     I want to search for Selenium-Webdriver
     Because I want to learn more about it
 
-    Background:
-
-        Given I am on the search page
+#    Background:
+#
+#        Given I am on the search page
 
         @debug
     Scenario: Performing a search operation
-        When I enter "Selenium Webdriver" into the search box
-        And  I click the search button
-        Then I should see a list of search results
+#        When I enter "Selenium Webdriver" into the search box
+#        And  I click the search button
+#        Then I should see a list of search results
             And my test step
-        And Click to result
+            And Click to result
 
     Scenario Outline: Performing a search operation with passing test data as data table
         When I enter <searchItem> into the search box
