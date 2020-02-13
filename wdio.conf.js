@@ -1,33 +1,34 @@
 const { addArgument } = require('@wdio/allure-reporter').default;
-const debug = !!process.env.DEBUG;
-const execArgv = debug ? ['--inspect'] : [];
-const stepTimout = debug ? 24 * 60 * 60 * 1000 : 6000;
-const capabilities = debug
-    ? [{ browserName: 'chrome', maxInstances: 1 }]
-    : [
-          {
-              // maxInstances can get overwritten per capability. So if you have an in-house Selenium
-              // grid with only 5 firefox instances available you can make sure that not more than
-              // 5 instances get started at a time.
-              maxInstances: 5,
-              //
-              browserName: 'chrome',
-              // If outputDir is provided WebdriverIO can capture driver session logs
-              // it is possible to configure which logTypes to include/exclude.
-              // excludeDriverLogs: ['*'], // pass '*' to exclude all driver session logs
-              // excludeDriverLogs: ['bugreport', 'server'],
-              'goog:chromeOptions': {
-                  // to run chrome headless the following flags are required
-                  // (see https://developers.google.com/web/updates/2017/04/headless-chrome)
-                  args: [
-                      '--disable-gpu',
-                      '--disable-software-rasterizer',
-                  ],
-              },
-          }
-      ];
+// const debug = !!process.env.DEBUG;
+// const execArgv = ['--inspect'];
+// const stepTimout = debug ? 24 * 60 * 60 * 1000 : 6000;
+// const capabilities = debug
+//     ? [{ browserName: 'chrome', maxInstances: 1 }]
+//     : [
+//           {
+//               // maxInstances can get overwritten per capability. So if you have an in-house Selenium
+//               // grid with only 5 firefox instances available you can make sure that not more than
+//               // 5 instances get started at a time.
+//               maxInstances: 5,
+//               //
+//               browserName: 'chrome',
+//               // If outputDir is provided WebdriverIO can capture driver session logs
+//               // it is possible to configure which logTypes to include/exclude.
+//               // excludeDriverLogs: ['*'], // pass '*' to exclude all driver session logs
+//               // excludeDriverLogs: ['bugreport', 'server'],
+//               'goog:chromeOptions': {
+//                   // to run chrome headless the following flags are required
+//                   // (see https://developers.google.com/web/updates/2017/04/headless-chrome)
+//                   args: [
+//                       // '--headless',
+//                       '--disable-gpu',
+//                       '--disable-software-rasterizer',
+//                   ],
+//               },
+//           }
+//       ];
 
-const maxInstances = debug ? 1 : 10;
+// const maxInstances = debug ? 1 : 10;
 let scenarioCounter = 0;
 
 exports.config = {
@@ -38,11 +39,40 @@ exports.config = {
     //
     // WebdriverIO allows it to run your tests in arbitrary locations (e.g. locally or
     // on a remote machine).
-    runner: 'local',
+    // runner: 'local',
     //
     // Override default path ('/wd/hub') for chromedriver service.
-    path: '/wd/hub',
+    hostname: 'localhost',
     port: 4444,
+    path: '/wd/hub',
+    // maxInstances: 5,
+    capabilities: [{
+        browserName: 'chrome',
+        // enableVNC: true,
+        // sessionTimeout: "5m",
+        // metadata: {
+        //     device: "Selenoid",
+        //     platform: {
+        //         name: process.platform
+        //     }
+        // },
+        'goog:chromeOptions': {
+            args: [
+                'headless',
+                // 'no-sandbox',
+                // 'disable-gpu',
+                // 'disable-dev-shm-usage',
+                //'disable-software-rasterizer',
+                // 'mute-audio',
+                // 'disable-infobars',
+                // 'ignore-certificate-errors',
+                // 'disable-popup-blocking',
+                'disable-notifications',
+                'start-maximized'
+                // 'window-size=1280,720'
+            ]
+        }
+    }],
     //
     // ==================
     // Specify Test Files
@@ -73,13 +103,13 @@ exports.config = {
     // and 30 processes will get spawned. The property handles how many capabilities
     // from the same test should run tests.
     //
-    maxInstances: maxInstances,
+    maxInstances: 5,
     //
     // If you have trouble getting all important capabilities together, check out the
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://docs.saucelabs.com/reference/platforms-configurator
     //
-    capabilities: capabilities,
+    // capabilities: capabilities,
     //
     // ===================
     // Test Configurations
@@ -87,10 +117,10 @@ exports.config = {
     // Define all options that are relevant for the WebdriverIO instance here
     //
     // Level of logging verbosity: trace | debug | info | warn | error | silent
-    logLevel: 'silent',
+    logLevel: 'error',
 
     // in debug mode passes --inspect
-    execArgv: execArgv,
+    execArgv: ['--inspect'],
     //
     // Set specific log levels per logger
     // loggers:
@@ -114,7 +144,7 @@ exports.config = {
     // with `/`, the base url gets prepended, not including the path portion of your baseUrl.
     // If your `url` parameter starts without a scheme or `/` (like `some/path`), the base url
     // gets prepended directly.
-    baseUrl: 'http://localhost:3112',
+    baseUrl: 'http://tools.local-brightlocal.com/',
     //
     // Default timeout for all waitFor* commands.
     waitforTimeout: 10000,
@@ -169,9 +199,9 @@ exports.config = {
         snippets: true, // <boolean> hide step definition snippets for pending steps
         source: true, // <boolean> hide source uris
         profile: [], // <string[]> (name) specify the profile to use
-        strict: false, // <boolean> fail if there are any undefined or pending steps
+        strict: true, // <boolean> fail if there are any undefined or pending steps
         tagExpression: '@debug', // <string> (expression) only execute the features or scenarios with tags matching the expression
-        timeout: stepTimout, // <number> timeout for step definitions
+        timeout: 30000, // <number> timeout for step definitions
         ignoreUndefinedDefinitions: false, // <boolean> Enable this config to treat undefined definitions as warnings
         requireModule: [
             // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
@@ -216,10 +246,10 @@ exports.config = {
      */
     // before: function (capabilities, specs) {
     // },
-    before: function(capabilities, specs) {
-        // require('ts-node/register');
-        require('ts-node').register({ files: true });
-    },
+    // before: function(capabilities, specs) {
+    //     require('ts-node/register');
+    //     require('ts-node').register({ files: true });
+    // },
     /**
      * Runs before a WebdriverIO command gets executed.
      * @param {String} commandName hook command name

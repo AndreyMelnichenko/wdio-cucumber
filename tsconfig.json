@@ -13,9 +13,13 @@
             "@wdio/cucumber-framework",
             "reflect-metadata"
         ],
-        "target": "es5",
+        "target": "es6",
         "lib": ["es2018", "dom"],
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "removeComments": true,
+        "noImplicitAny": false,
+        "outDir": "./tsrc"
     },
     "include": ["./src/**/*.ts"]
 }

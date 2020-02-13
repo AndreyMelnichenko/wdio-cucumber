@@ -1,17 +1,15 @@
-import { binding, when } from 'cucumber-tsflow/dist';
+import { Then } from "cucumber";
 import { Helper } from 'src/utils/helper';
 
-@binding()
-export class NavigationsSteps {
-    @when(/^Click to result$/)
-    public whenSearchClicked() {
-        $$('div[data-hveid] h3')[1].click();
-        browser.pause(5000);
-        const a = {name:'Andrii', age:'22'};
-        console.log("General context: "+this);
-        Helper.addWorldValue(this,'Person',a);
+Then(/^Click to result$/,function() {
+    $(".SignUp-loginForm-button").click();
+    browser.pause(5000);
+    const a = {name:'Andrii', age:'22'};
+    this.keepValue('test',a);
+    Helper.addWorldValue(this,'Person',a);
+    console.log("General context: "+JSON.stringify(this));
+    Helper.addWorldValue(this,'Person',a);
 
-        const b = Helper.getWorldValue('Person',this);
-        console.log(b)
-    }
-}
+    const b = Helper.getWorldValue('Person',this);
+    console.log(b)
+});

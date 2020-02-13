@@ -1,7 +1,6 @@
 import { assert } from 'chai';
 import { binding, given, when, then } from 'cucumber-tsflow';
 import homepage from '../pages/Homepage';
-import { Helper } from '../utils/helper';
 
 @binding()
 export class HomepageSearchSteps {
@@ -9,7 +8,6 @@ export class HomepageSearchSteps {
     public async givenOnHomepage() {
         homepage.open();
         const title = browser.getTitle();
-
         assert.equal(title, 'Google');
     }
 

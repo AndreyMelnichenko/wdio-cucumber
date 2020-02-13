@@ -4,7 +4,6 @@ class CustomWorld<T> {
     private store: Map<string, T> = new Map();
 
     public keepValue(k: string, v: T): void {
-        console.log(this.store);
         this.store.set(k, v);
     }
 
