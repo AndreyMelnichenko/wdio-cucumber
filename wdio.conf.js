@@ -1,37 +1,52 @@
 const { addArgument } = require('@wdio/allure-reporter').default;
-const debug = !!process.env.DEBUG;
-const execArgv = debug ? ['--inspect'] : [];
-const stepTimout = 24 * 60 * 60 * 1000;
-const capabilities = debug
-    ? [{ browserName: 'chrome', maxInstances: 1 }]
-    : [
-          {
-              // maxInstances can get overwritten per capability. So if you have an in-house Selenium
-              // grid with only 5 firefox instances available you can make sure that not more than
-              // 5 instances get started at a time.
-              maxInstances: 5,
-              //
-              browserName: 'chrome',
-              // If outputDir is provided WebdriverIO can capture driver session logs
-              // it is possible to configure which logTypes to include/exclude.
-              // excludeDriverLogs: ['*'], // pass '*' to exclude all driver session logs
-              // excludeDriverLogs: ['bugreport', 'server'],
-              'goog:chromeOptions': {
-                  // to run chrome headless the following flags are required
-                  // (see https://developers.google.com/web/updates/2017/04/headless-chrome)
-                  args: [
-                      // '--headless',
-                      '--disable-gpu',
-                      '--disable-software-rasterizer',
-                      '--start-maximized',
-                  ],
-              },
-          }
-      ];
+const TagExpressionParser = require('cucumber-tag-expressions').TagExpressionParser;
+const tagParser = new TagExpressionParser();
+const glob = require('glob');
+const moment = require('moment');
+const fs = require('fs');
 
-const maxInstances = debug ? 1 : 10;
-let scenarioCounter = 0;
+const env = process.env.BASE_URL;
+const env_domain = process.env.BASE_DOMAIN;
+const env_ssl = process.env.SSl || 'https';
+const comment = process.env.COMMIT_TITLE || 'Debug run ' + process.env.CUCUMBER_TAGS ;
+const author = process.env.COMMIT_AUTHOR;
+const revision = process.env.COMMIT_REV;
+const deployedAt = process.env.DEPLOY_TIME || `${new moment(new Date()).format('HH:mm:ss DD-MM-YYYY')}`;
 
+const testRailsOptions = {
+    domain: process.env.TR_DOMAIN,
+    username: process.env.TR_USERNAME,
+    password: process.env.TR_APIKEY,
+    projectId: process.env.TR_PROJECT_ID || '1',
+    suiteId: process.env.TR_SUIT_ID,
+    updatePlan: process.env.TR_UPD_PLAN,
+    runName: process.env.TR_RUN_NAME,
+    includeAll: process.env.TR_ALL || true,
+    customStatuses: { "Passed": 1, "Failed": 6 },
+    customDescription: `${process.env.TR_CUSTOM_DESCR}` || 'TR_CUSTOM_DESCR'
+};
+
+const cucumberTags = process.env.CUCUMBER_TAGS != null ? process.env.CUCUMBER_TAGS : '@world or @test3';
+const expressionNode = tagParser.parse(cucumberTags);
+const filesWithTags = glob.sync('./src/features/**/*.feature').map((file) => {
+    const content = fs.readFileSync(file, 'utf8');
+    if (content.length > 0) {
+        const tagsInFile = content.match(/(@\w+)/g) || [];
+        if (expressionNode.evaluate(tagsInFile)) {
+            return file;
+        }
+    }
+    return null;
+}).filter(x => x != null);
+
+const clearCookie = () => {
+    try {
+        browser.deleteCookie();
+    } catch (error) {
+        console.warn(`Unable to clear browser cache: \n${error}`);
+    }
+};
+let scenarioCounter=0;
 exports.config = {
     //
     // ====================
@@ -40,9 +55,10 @@ exports.config = {
     //
     // WebdriverIO allows it to run your tests in arbitrary locations (e.g. locally or
     // on a remote machine).
-    runner: 'local',
+    // runner: 'local',
     //
     // Override default path ('/wd/hub') for chromedriver service.
+    hostname: 'aerokube.bll-i.co.uk',
     path: '/wd/hub',
     port: 4444,
     //
@@ -75,13 +91,39 @@ exports.config = {
     // and 30 processes will get spawned. The property handles how many capabilities
     // from the same test should run tests.
     //
-    maxInstances: maxInstances,
+    maxInstances: 5,
     //
     // If you have trouble getting all important capabilities together, check out the
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://docs.saucelabs.com/reference/platforms-configurator
     //
-    capabilities: capabilities,
+    capabilities: [
+        {
+            // maxInstances can get overwritten per capability. So if you have an in-house Selenium
+            // grid with only 5 firefox instances available you can make sure that not more than
+            // 5 instances get started at a time.
+            maxInstances: 5,
+            browserName: 'chrome',
+            // If outputDir is provided WebdriverIO can capture driver session logs
+            // it is possible to configure which logTypes to include/exclude.
+            // excludeDriverLogs: ['*'], // pass '*' to exclude all driver session logs
+            // excludeDriverLogs: ['bugreport', 'server'],
+            'goog:chromeOptions': {
+                // to run chrome headless the following flags are required
+                // (see https://developers.google.com/web/updates/2017/04/headless-chrome)
+                args: [
+                    // '--headless',
+                    '--disable-gpu',
+                    '--disable-software-rasterizer',
+                    '--start-maximized',
+                ],
+            },
+            'selenoid:options': {
+                enableVNC: true,
+                sessionTimeout: '5m',
+            }
+        },
+    ],
     //
     // ===================
     // Test Configurations
@@ -89,10 +131,12 @@ exports.config = {
     // Define all options that are relevant for the WebdriverIO instance here
     //
     // Level of logging verbosity: trace | debug | info | warn | error | silent
-    logLevel: 'silent',
+    logLevel: 'error',
 
     // in debug mode passes --inspect
-    execArgv: execArgv,
+    execArgv: [
+        // '--inspect'
+    ],
     //
     // Set specific log levels per logger
     // loggers:
@@ -172,8 +216,8 @@ exports.config = {
         source: true, // <boolean> hide source uris
         profile: [], // <string[]> (name) specify the profile to use
         strict: false, // <boolean> fail if there are any undefined or pending steps
-        tagExpression: '@world and @test1', // <string> (expression) only execute the features or scenarios with tags matching the expression
-        timeout: stepTimout, // <number> timeout for step definitions
+        tagExpression: cucumberTags, // <string> (expression) only execute the features or scenarios with tags matching the expression
+        timeout: 24 * 60 * 60 * 1000, // <number> timeout for step definitions
         ignoreUndefinedDefinitions: false, // <boolean> Enable this config to treat undefined definitions as warnings
         requireModule: [
             // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
@@ -181,13 +225,15 @@ exports.config = {
             () => {
                 require('ts-node').register(
                     {
-                        files: true
-                    })},
-            '@babel/register'
+                        files: true,
+                    });
+            },
+            '@babel/register',
         ],
-        require: ['./src/stepDefinitions/*.steps.ts',
-            './src/utils/hooks.ts',
-            './babel.config.js'
+        require: [
+            './src/utils/hooks.ts', // override default World constructor
+            './src/stepDefinitions/*.steps.ts',
+            './babel.config.js',
         ], // <string[]> (file/dir) require files before executing features
     },
 
@@ -204,8 +250,11 @@ exports.config = {
      * @param {Object} config wdio configuration object
      * @param {Array.<Object>} capabilities list of capabilities details
      */
-    // onPrepare: function (config, capabilities) {
-    // },
+    onPrepare: function (config, capabilities) {
+        if (filesWithTags.length > 0) {
+            console.log(`Files with tags:  ${filesWithTags}`);
+        }
+    },
     /**
      * Gets executed just before initialising the webdriver session and test framework. It allows you
      * to manipulate configurations depending on the capability or spec.
@@ -221,12 +270,22 @@ exports.config = {
      * @param {Array.<Object>} capabilities list of capabilities details
      * @param {Array.<String>} specs List of spec file paths that are to be run
      */
-    // before: function (capabilities, specs) {
-    // },
-    // before: function(capabilities, specs) {
-    //     // require('ts-node/register');
-    //     require('ts-node').register({ files: true });
-    // },
+    before: () => {
+        // result[1].uri;
+        // browser.options.baseUrl;
+        // browser.options.specs;
+        // this.config.cucumberOpts.tagExpression;
+        // filesWithTags;
+        console.log(`
+        +===========================================================
+        | TEST-PACK START RUNNING: ${result[1].uri}
+        +===========================================================
+        | URL:            ${this.config.baseUrl}
+        | SPECS:          ${filesWithTags}
+        | TagExpression   ${this.config.cucumberOpts.tagExpression}
+        +===========================================================
+        `);
+    },
     /**
      * Runs before a WebdriverIO command gets executed.
      * @param {String} commandName hook command name
@@ -237,9 +296,8 @@ exports.config = {
     /**
      * Runs before a Cucumber feature
      */
-    beforeFeature: function(uri, feature, scenarios) {
-        scenarioCounter = 0;
-    },
+    // beforeFeature: function(uri, feature, scenarios) {
+    // },
     /**
      * Runs before a Cucumber scenario
      */
@@ -265,7 +323,12 @@ exports.config = {
      */
     afterScenario: function(uri, feature, scenario, result, sourceLocation) {
         scenarioCounter += 1;
+        console.log("add argument: "+scenarioCounter);
         addArgument('Scenario #', scenarioCounter);
+        console.log("feature: "+feature.document.feature.name
+            +" TC: "+scenario.tags[0].name
+            +" "+ scenario.name
+            +" result:"+result.status);
     },
     /**
      * Runs after a Cucumber feature

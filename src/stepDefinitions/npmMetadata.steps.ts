@@ -8,7 +8,7 @@ Then(/^Save WDIO metadata at npm as "(.*)"$/,function(npmDate:string) {
     npmWebdriverPage.waitForNpmLoaded();
     const npmMetaData:IProjectMetadata = npmWebdriverPage.getNpmMetaData();
     this.keepValue(npmDate,npmMetaData);
-    console.log(npmMetaData);
+    // console.log(npmMetaData);
 });
 
 Then(/^Compare "(.*)" and "(.*)"$/,function(firsCompareValue:string, secondCompareValue:string) {
