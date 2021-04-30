@@ -1,0 +1,54 @@
+{
+  "name": "test-automation",
+  "version": "3.0.0",
+  "description": "e2e, integration",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "wdio run wdio.conf.ts && allure generate ./allure-results --clean",
+    "allure-report": "allure generate ./allure-results --clean",
+    "clean-allure": "rm -rf ./allure-results ./allure-report"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BrightLocal/test-automation.git"
+  },
+  "keywords": [
+    "e2e",
+    "integration",
+    "webdriver"
+  ],
+  "author": "Andrii Melnychenko <andrey.melnichenko@brightlocal.com>, Andrei Skindzer <andrei.skindzer@brightlocal.com>, Daria Vitte <daria.vitte@brightlocal.com>, Artemy Hladenko <ahladenko@brightlocal.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BrightLocal/test-automation/issues"
+  },
+  "homepage": "https://github.com/BrightLocal/test-automation#readme",
+  "devDependencies": {
+    "@wdio/allure-reporter": "^7.5.2",
+    "@wdio/cli": "^7.5.2",
+    "@wdio/config": "^7.5.2",
+    "@wdio/cucumber-framework": "^7.5.2",
+    "@wdio/local-runner": "^7.5.2",
+    "@wdio/selenium-standalone-service": "^7.5.2",
+    "@wdio/spec-reporter": "^7.5.2",
+    "@wdio/sync": "^7.5.2",
+    "@types/chai": "^4.2.17",
+    "@types/faker": "^5.5.3",
+    "@types/randomstring": "^1.1.6",
+    "@types/cucumber": "^7.0.0",
+    "allure-commandline": "^2.13.8",
+    "chromedriver": "^89.0.0",
+    "chai": "^4.3.4",
+    "faker": "^5.5.3",
+    "moment": "^2.29.1",
+    "randomstring": "^1.1.5",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4",
+    "wdio-chromedriver-service": "^7.0.0",
+    "wdio-cucumber-reporter": "^0.0.2",
+    "wdio-docker-service": "^3.1.2",
+    "wdio-timeline-reporter": "^5.1.4",
+    "webdriverio": "^7.5.2"
+  }
+}
